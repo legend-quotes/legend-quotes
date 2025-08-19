@@ -9,6 +9,8 @@ import com.gangneng.legend_quotes.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +36,7 @@ public class UserService {
         return responseDTO;
     }
 
-    public UserLoginResponseDTO login(UserLoginRequestDTO requestDTO) {
+    public UserLoginResponseDTO login(UserLoginRequestDTO requestDTO, HttpServletResponse response) {
         User user = userRepository.findByEmail(requestDTO.getEmail());
         
         UserLoginResponseDTO responseDTO = new UserLoginResponseDTO();
@@ -43,6 +45,12 @@ public class UserService {
             responseDTO.setMessage("이메일 또는 비밀번호가 잘못되었습니다.");
             return responseDTO;
         }
+        
+        Cookie userIdCookie = new Cookie("userId", user.getId().toString());
+        userIdCookie.setMaxAge(5 * 60 * 60);
+        userIdCookie.setHttpOnly(true);
+        userIdCookie.setPath("/");
+        response.addCookie(userIdCookie);
         
         responseDTO.setId(user.getId());
         responseDTO.setName(user.getName());

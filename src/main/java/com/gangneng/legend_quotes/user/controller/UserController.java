@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/api/users")
@@ -24,8 +25,8 @@ public class UserController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<UserLoginResponseDTO> login(@RequestBody UserLoginRequestDTO requestDTO) {
-        UserLoginResponseDTO responseDTO = userService.login(requestDTO);
+    public ResponseEntity<UserLoginResponseDTO> login(@RequestBody UserLoginRequestDTO requestDTO, HttpServletResponse response) {
+        UserLoginResponseDTO responseDTO = userService.login(requestDTO, response);
         
         if (responseDTO.getId() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseDTO);
