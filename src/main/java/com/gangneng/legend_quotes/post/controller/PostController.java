@@ -2,6 +2,8 @@ package com.gangneng.legend_quotes.post.controller;
 
 import com.gangneng.legend_quotes.post.dto.request.PostCreateRequestDTO;
 import com.gangneng.legend_quotes.post.dto.response.PostCreateResponseDTO;
+import com.gangneng.legend_quotes.post.dto.response.PostListResponseDTO;
+import java.util.List;
 import com.gangneng.legend_quotes.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,7 @@ public class PostController {
 
     private final PostService postService;
 
+    // 게시글 작성
     @PostMapping
     public ResponseEntity<PostCreateResponseDTO> createPost(
             @RequestBody PostCreateRequestDTO requestDTO,
@@ -32,5 +35,12 @@ public class PostController {
         Long userId = Long.parseLong(userIdStr);
         PostCreateResponseDTO responseDTO = postService.createPost(requestDTO, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+    }
+
+    // 모든 게시글 조회
+    @GetMapping
+    public ResponseEntity<List<PostListResponseDTO>> getAllPosts() {
+        List<PostListResponseDTO> posts = postService.getAllPosts();
+        return ResponseEntity.ok(posts);
     }
 }
