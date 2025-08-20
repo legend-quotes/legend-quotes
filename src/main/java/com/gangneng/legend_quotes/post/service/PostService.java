@@ -2,6 +2,9 @@ package com.gangneng.legend_quotes.post.service;
 
 import com.gangneng.legend_quotes.post.dto.request.PostCreateRequestDTO;
 import com.gangneng.legend_quotes.post.dto.response.PostCreateResponseDTO;
+import com.gangneng.legend_quotes.post.dto.response.PostListResponseDTO;
+import java.util.List;
+import java.util.stream.Collectors;
 import com.gangneng.legend_quotes.post.entity.Post;
 import com.gangneng.legend_quotes.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,5 +36,23 @@ public class PostService {
         responseDTO.setCreatedAt(savedPost.getCreatedAt());
 
         return responseDTO;
+    }
+
+    @Transactional(readOnly = true)
+    public List<PostListResponseDTO> getAllPosts() {
+        List<Post> posts = postRepository.findAll();
+        
+        return posts.stream()
+                .map(post -> {
+                    PostListResponseDTO dto = new PostListResponseDTO();
+                    dto.setId(post.getId());
+                    dto.setTitle(post.getTitle());
+                    dto.setContent(post.getContent());
+                    dto.setUserId(post.getUserId());
+                    dto.setProfessor(post.getProfessor());
+                    dto.setCreatedAt(post.getCreatedAt());
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 }
