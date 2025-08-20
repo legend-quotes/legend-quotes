@@ -4,6 +4,8 @@ import com.gangneng.legend_quotes.user.dto.request.UserSignUpRequestDTO;
 import com.gangneng.legend_quotes.user.dto.response.UserSignUpResponseDTO;
 import com.gangneng.legend_quotes.user.dto.request.UserLoginRequestDTO;
 import com.gangneng.legend_quotes.user.dto.response.UserLoginResponseDTO;
+import com.gangneng.legend_quotes.user.dto.request.UserUpdateRequestDTO;
+import com.gangneng.legend_quotes.user.dto.response.UserUpdateResponseDTO;
 import com.gangneng.legend_quotes.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -33,5 +35,28 @@ public class UserController {
         }
         
         return ResponseEntity.ok(responseDTO);
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<UserUpdateResponseDTO> updateProfile(
+            @RequestBody UserUpdateRequestDTO requestDTO,
+            @CookieValue(value = "userId", required = false) String userIdCookie) {
+        
+        return userService.updateUserProfile(requestDTO, userIdCookie);
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<UserUpdateResponseDTO> getProfile(
+            @CookieValue(value = "userId", required = false) String userIdCookie) {
+        
+        return userService.getUserProfile(userIdCookie);
+    }
+
+    @DeleteMapping("/profile")
+    public ResponseEntity<Void> deleteProfile(
+            @CookieValue(value = "userId", required = false) String userIdCookie,
+            HttpServletResponse response) {
+        
+        return userService.deleteUserProfile(userIdCookie, response);
     }
 }

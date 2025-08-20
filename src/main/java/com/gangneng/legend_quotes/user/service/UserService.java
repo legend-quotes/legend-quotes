@@ -4,7 +4,11 @@ import com.gangneng.legend_quotes.user.dto.request.UserSignUpRequestDTO;
 import com.gangneng.legend_quotes.user.dto.response.UserSignUpResponseDTO;
 import com.gangneng.legend_quotes.user.dto.request.UserLoginRequestDTO;
 import com.gangneng.legend_quotes.user.dto.response.UserLoginResponseDTO;
+import com.gangneng.legend_quotes.user.dto.request.UserUpdateRequestDTO;
+import com.gangneng.legend_quotes.user.dto.response.UserUpdateResponseDTO;
 import com.gangneng.legend_quotes.user.entity.User;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import com.gangneng.legend_quotes.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -52,11 +56,107 @@ public class UserService {
         userIdCookie.setPath("/");
         response.addCookie(userIdCookie);
         
+        Cookie loginStatusCookie = new Cookie("isLoggedIn", "true");
+        loginStatusCookie.setMaxAge(5 * 60 * 60);
+        loginStatusCookie.setPath("/");
+        response.addCookie(loginStatusCookie);
+        
         responseDTO.setId(user.getId());
         responseDTO.setName(user.getName());
         responseDTO.setEmail(user.getEmail());
         responseDTO.setMessage("로그인 성공");
         
         return responseDTO;
+    }
+
+    public UserUpdateResponseDTO updateUser(Long userId, UserUpdateRequestDTO requestDTO) {
+        User user = userRepository.findById(userId).orElse(null);
+        
+        UserUpdateResponseDTO responseDTO = new UserUpdateResponseDTO();
+        
+        if (user == null) {
+            responseDTO.setMessage("사용자를 찾을 수 없습니다.");
+            return responseDTO;
+        }
+        
+        if (requestDTO.getName() != null && !requestDTO.getName().trim().isEmpty()) {
+            user.setName(requestDTO.getName());
+        }
+        
+        if (requestDTO.getPassword() != null && !requestDTO.getPassword().trim().isEmpty()) {
+            user.setPassword(requestDTO.getPassword());
+        }
+        
+        User updatedUser = userRepository.save(user);
+        
+        responseDTO.setId(updatedUser.getId());
+        responseDTO.setName(updatedUser.getName());
+        responseDTO.setEmail(updatedUser.getEmail());
+        responseDTO.setMessage("회원 정보가 수정되었습니다.");
+        
+        return responseDTO;
+    }
+
+    public ResponseEntity<UserUpdateResponseDTO> updateUserProfile(UserUpdateRequestDTO requestDTO, String userIdCookie) {
+        if (userIdCookie == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        
+        Long userId = Long.parseLong(userIdCookie);
+        UserUpdateResponseDTO responseDTO = updateUser(userId, requestDTO);
+        
+        if (responseDTO.getId() == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseDTO);
+        }
+        
+        return ResponseEntity.ok(responseDTO);
+    }
+
+    public ResponseEntity<UserUpdateResponseDTO> getUserProfile(String userIdCookie) {
+        if (userIdCookie == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        
+        Long userId = Long.parseLong(userIdCookie);
+        User user = userRepository.findById(userId).orElse(null);
+        
+        UserUpdateResponseDTO responseDTO = new UserUpdateResponseDTO();
+        
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        
+        responseDTO.setId(user.getId());
+        responseDTO.setName(user.getName());
+        responseDTO.setEmail(user.getEmail());
+        
+        return ResponseEntity.ok(responseDTO);
+    }
+
+    public ResponseEntity<Void> deleteUserProfile(String userIdCookie, HttpServletResponse response) {
+        if (userIdCookie == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        
+        Long userId = Long.parseLong(userIdCookie);
+        User user = userRepository.findById(userId).orElse(null);
+        
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        
+        userRepository.delete(user);
+        
+        Cookie userIdCookie2 = new Cookie("userId", "");
+        userIdCookie2.setMaxAge(0);
+        userIdCookie2.setPath("/");
+        response.addCookie(userIdCookie2);
+        
+        Cookie loginStatusCookie = new Cookie("isLoggedIn", "");
+        loginStatusCookie.setMaxAge(0);
+        loginStatusCookie.setPath("/");
+        response.addCookie(loginStatusCookie);
+        
+        return ResponseEntity.ok().build();
     }
 }
