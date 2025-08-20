@@ -15,4 +15,6 @@ public class PostDetailResponseDTO {
     private String professor;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private long likeCount;
+    private boolean isLiked;
 }

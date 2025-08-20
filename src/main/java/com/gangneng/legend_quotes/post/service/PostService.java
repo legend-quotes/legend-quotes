@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import com.gangneng.legend_quotes.post.entity.Post;
 import com.gangneng.legend_quotes.post.repository.PostRepository;
+import com.gangneng.legend_quotes.like.entity.Like;
+import com.gangneng.legend_quotes.like.repository.LikeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final LikeRepository likeRepository;
 
     public PostCreateResponseDTO createPost(PostCreateRequestDTO requestDTO, Long userId) {
         Post post = new Post();
@@ -71,7 +74,16 @@ public class PostService {
         dto.setProfessor(post.getProfessor());
         dto.setCreatedAt(post.getCreatedAt());
         dto.setUpdatedAt(post.getUpdatedAt());
+        dto.setLikeCount(likeRepository.countByPostId(postId));
         
+        return dto;
+    }
+
+    public PostDetailResponseDTO getPostByIdWithUser(Long postId, Long userId) {
+        PostDetailResponseDTO dto = getPostById(postId);
+        if (userId != null) {
+            dto.setLiked(likeRepository.existsByPostIdAndUserId(postId, userId));
+        }
         return dto;
     }
 
@@ -109,5 +121,18 @@ public class PostService {
         
         postRepository.delete(post);
         return true;
+    }
+
+    public boolean toggleLike(Long postId, Long userId) {
+        if (likeRepository.existsByPostIdAndUserId(postId, userId)) {
+            likeRepository.deleteByPostIdAndUserId(postId, userId);
+            return false;
+        } else {
+            Like like = new Like();
+            like.setPostId(postId);
+            like.setUserId(userId);
+            likeRepository.save(like);
+            return true;
+        }
     }
 }
