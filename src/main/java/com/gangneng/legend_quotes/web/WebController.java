@@ -35,4 +35,9 @@ public class WebController {
     public String postDetail() {
         return "post-detail";
     }
+
+    @GetMapping("/profile")
+    public String profile() {
+        return "profile";
+    }
 }

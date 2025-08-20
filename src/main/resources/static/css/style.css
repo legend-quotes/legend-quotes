@@ -73,6 +73,14 @@ body {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+}
+
+#authLinks, #userLinks {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
 }
 
 /* 홈 화면 */

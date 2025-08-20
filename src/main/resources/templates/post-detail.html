@@ -12,9 +12,17 @@
             <div class="nav-brand">
                 <a href="/"><h1>🎓 레전드 명언록</h1></a>
             </div>
-            <div class="nav-links">
+            <div class="nav-links" id="navLinks">
                 <a href="/posts">게시판</a>
                 <a href="/posts/create" class="btn-primary">글쓰기</a>
+                <div id="authLinks">
+                    <a href="/login">로그인</a>
+                    <a href="/signup">회원가입</a>
+                </div>
+                <div id="userLinks" style="display: none;">
+                    <a href="/profile">프로필</a>
+                    <button onclick="logout()" class="btn-secondary">로그아웃</button>
+                </div>
             </div>
         </nav>
     </header>
@@ -123,8 +131,38 @@
             }
         }
 
+        // 쿠키 값 가져오기
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        // 로그아웃
+        function logout() {
+            document.cookie = 'isLoggedIn=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            document.cookie = 'userId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            window.location.href = '/login';
+        }
+
+        // 네비게이션 상태 업데이트
+        function updateNavigation() {
+            const isLoggedIn = getCookie('isLoggedIn');
+            const authLinks = document.getElementById('authLinks');
+            const userLinks = document.getElementById('userLinks');
+            
+            if (isLoggedIn === 'true') {
+                authLinks.style.display = 'none';
+                userLinks.style.display = 'flex';
+            } else {
+                authLinks.style.display = 'flex';
+                userLinks.style.display = 'none';
+            }
+        }
+
         // 페이지 로드 시 실행
         document.addEventListener('DOMContentLoaded', function() {
+            updateNavigation();
             loadPostDetail();
             loadComments();
         });
