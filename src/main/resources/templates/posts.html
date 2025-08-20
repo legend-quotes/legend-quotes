@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시판 - 레전드 명언록</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-brand">
+                <a href="/"><h1>🎓 레전드 명언록</h1></a>
+            </div>
+            <div class="nav-links">
+                <a href="/posts">게시판</a>
+                <a href="/posts/create" class="btn-primary">글쓰기</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="posts-main">
+        <div class="posts-header">
+            <h2>교수님 명언 모음</h2>
+            <div class="filter-controls">
+                <select id="sortSelect">
+                    <option value="latest">최신순</option>
+                    <option value="popular">인기순</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="posts-container" id="postsContainer">
+            <!-- 게시글 목록이 여기에 로드됩니다 -->
+        </div>
+    </main>
+
+    <script>
+        let posts = [];
+
+        async function loadPosts() {
+            try {
+                const response = await fetch('/api/posts');
+                posts = await response.json();
+                renderPosts(posts);
+            } catch (error) {
+                console.error('게시글 로드 실패:', error);
+            }
+        }
+
+        function renderPosts(postsToRender) {
+            const container = document.getElementById('postsContainer');
+            container.innerHTML = '';
+
+            postsToRender.forEach(post => {
+                const postElement = document.createElement('div');
+                postElement.className = 'post-item';
+                postElement.innerHTML = `
+                    <div class="post-content">
+                        <h3>${post.title}</h3>
+                        <p>${post.content}</p>
+                        <div class="post-meta">
+                            <span class="professor">👨‍🏫 ${post.professor}</span>
+                            <span class="date">${new Date(post.createdAt).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(postElement);
+            });
+        }
+
+        document.getElementById('sortSelect').addEventListener('change', (e) => {
+            const sortType = e.target.value;
+            let sortedPosts = [...posts];
+
+            if (sortType === 'latest') {
+                sortedPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            } else if (sortType === 'popular') {
+                // 추후 좋아요 기능 구현 시 정렬 로직 추가
+                sortedPosts.sort((a, b) => b.id - a.id);
+            }
+
+            renderPosts(sortedPosts);
+        });
+
+        // 페이지 로드 시 게시글 불러오기
+        loadPosts();
+    </script>
+</body>
+</html>
