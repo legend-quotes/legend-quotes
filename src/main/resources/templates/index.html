@@ -30,7 +30,7 @@
         <section class="hero">
             <h2>교수님의 레전드 명언을 기록하세요</h2>
             <p>수업 중 들었던 인상 깊은 교수님의 말씀을 공유해보세요</p>
-            <a href="/posts/create" class="btn-primary">명언 등록하기</a>
+            <button onclick="goToCreatePost()" class="btn-primary">명언 등록하기</button>
         </section>
 
         <section class="popular-posts">
@@ -88,6 +88,17 @@
                     container.appendChild(postCard);
                 });
             });
+
+        // 게시글 작성 페이지로 이동
+        function goToCreatePost() {
+            const isLoggedIn = getCookie('isLoggedIn');
+            if (isLoggedIn === 'true') {
+                window.location.href = '/posts/create';
+            } else {
+                alert('로그인이 필요합니다.');
+                window.location.href = '/login';
+            }
+        }
 
         // 페이지 로드 시 실행
         document.addEventListener('DOMContentLoaded', function() {

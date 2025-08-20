@@ -1,6 +1,7 @@
 package com.gangneng.legend_quotes.web;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
@@ -27,7 +28,10 @@ public class WebController {
     }
 
     @GetMapping("/posts/create")
-    public String createPost() {
+    public String createPost(@CookieValue(value = "userId", required = false) String userIdCookie) {
+        if (userIdCookie == null) {
+            return "redirect:/login";
+        }
         return "post-create";
     }
 
