@@ -57,7 +57,7 @@
                 postElement.className = 'post-item';
                 postElement.innerHTML = `
                     <div class="post-content">
-                        <h3>${post.title}</h3>
+                        <h3><a href="/posts/${post.id}" style="text-decoration: none; color: inherit;">${post.title}</a></h3>
                         <p>${post.content}</p>
                         <div class="post-meta">
                             <span class="professor">👨‍🏫 ${post.professor}</span>
@@ -65,6 +65,10 @@
                         </div>
                     </div>
                 `;
+                postElement.style.cursor = 'pointer';
+                postElement.addEventListener('click', () => {
+                    window.location.href = `/posts/${post.id}`;
+                });
                 container.appendChild(postElement);
             });
         }

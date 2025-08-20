@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글 상세 - 레전드 명언록</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-brand">
+                <a href="/"><h1>🎓 레전드 명언록</h1></a>
+            </div>
+            <div class="nav-links">
+                <a href="/posts">게시판</a>
+                <a href="/posts/create" class="btn-primary">글쓰기</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+
+        <main>
+            <div class="post-detail-container">
+                <div class="post-detail" id="postDetail">
+                    <!-- 게시글 내용이 여기에 로드됩니다 -->
+                </div>
+
+                <div class="comments-section">
+                    <h3>댓글</h3>
+                    
+                    <div class="comment-form">
+                        <textarea id="commentContent" placeholder="댓글을 입력하세요..." rows="3"></textarea>
+                        <button onclick="submitComment()">댓글 작성</button>
+                    </div>
+
+                    <div class="comments-list" id="commentsList">
+                        <!-- 댓글 목록이 여기에 로드됩니다 -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const postId = window.location.pathname.split('/').pop();
+
+        // 게시글 상세 정보 로드
+        async function loadPostDetail() {
+            try {
+                const response = await fetch(`/api/posts/${postId}`);
+                const post = await response.json();
+                
+                document.getElementById('postDetail').innerHTML = `
+                    <div class="post-header">
+                        <h2>${post.title}</h2>
+                        <div class="post-meta">
+                            <span class="professor">교수: ${post.professor}</span>
+                            <span class="date">${new Date(post.createdAt).toLocaleDateString()}</span>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <p>${post.content}</p>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('게시글 로드 실패:', error);
+            }
+        }
+
+        // 댓글 목록 로드
+        async function loadComments() {
+            try {
+                const response = await fetch(`/api/posts/${postId}/comments`);
+                const comments = await response.json();
+                
+                const commentsList = document.getElementById('commentsList');
+                commentsList.innerHTML = comments.map(comment => `
+                    <div class="comment">
+                        <div class="comment-meta">
+                            <span class="user-id">${comment.userName}</span>
+                            <span class="date">${new Date(comment.createdAt).toLocaleDateString()}</span>
+                        </div>
+                        <div class="comment-content">${comment.content}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('댓글 로드 실패:', error);
+            }
+        }
+
+        // 댓글 작성
+        async function submitComment() {
+            const content = document.getElementById('commentContent').value.trim();
+            
+            if (!content) {
+                alert('댓글 내용을 입력해주세요.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/posts/${postId}/comments`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ content })
+                });
+
+                if (response.ok) {
+                    document.getElementById('commentContent').value = '';
+                    loadComments();
+                } else if (response.status === 401) {
+                    alert('로그인이 필요합니다.');
+                    window.location.href = '/login';
+                } else {
+                    alert('댓글 작성에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('댓글 작성 실패:', error);
+                alert('댓글 작성에 실패했습니다.');
+            }
+        }
+
+        // 페이지 로드 시 실행
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPostDetail();
+            loadComments();
+        });
+    </script>
+</body>
+</html>
