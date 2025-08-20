@@ -3,6 +3,7 @@ package com.gangneng.legend_quotes.post.service;
 import com.gangneng.legend_quotes.post.dto.request.PostCreateRequestDTO;
 import com.gangneng.legend_quotes.post.dto.response.PostCreateResponseDTO;
 import com.gangneng.legend_quotes.post.dto.response.PostListResponseDTO;
+import com.gangneng.legend_quotes.post.dto.response.PostDetailResponseDTO;
 import java.util.List;
 import java.util.stream.Collectors;
 import com.gangneng.legend_quotes.post.entity.Post;
@@ -54,5 +55,22 @@ public class PostService {
                     return dto;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public PostDetailResponseDTO getPostById(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+        
+        PostDetailResponseDTO dto = new PostDetailResponseDTO();
+        dto.setId(post.getId());
+        dto.setTitle(post.getTitle());
+        dto.setContent(post.getContent());
+        dto.setUserId(post.getUserId());
+        dto.setProfessor(post.getProfessor());
+        dto.setCreatedAt(post.getCreatedAt());
+        dto.setUpdatedAt(post.getUpdatedAt());
+        
+        return dto;
     }
 }

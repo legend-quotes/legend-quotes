@@ -30,4 +30,9 @@ public class WebController {
     public String createPost() {
         return "post-create";
     }
+
+    @GetMapping("/posts/{postId}")
+    public String postDetail() {
+        return "post-detail";
+    }
 }
