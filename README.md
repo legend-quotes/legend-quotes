@@ -17,15 +17,17 @@
 
 ### ✅ 구현 완료
 - 회원가입 / 로그인 (쿠키 기반 인증)
-- 게시글 작성 / 조회
-- 반응형 웹 디자인
+- 게시글 CRUD (작성/조회/수정/삭제)
 - 게시글 정렬 (최신순/인기순)
+- 좋아요 기능
+- 댓글 시스템 (엔티티 구현)
+- 반응형 웹 디자인
+- 마이페이지
 
 ### 🔄 개발 예정
-- 좋아요 기능
-- 댓글 시스템
 - 검색 및 필터링
-- 마이페이지
+- 댓글 CRUD 기능 완성
+- 알림 시스템
 
 ## 📁 프로젝트 구조
 
@@ -33,12 +35,16 @@
 src/
 ├── main/
 │   ├── java/com/gangneng/legend_quotes/
-│   │   ├── post/           # 게시글 관련
-│   │   ├── user/           # 사용자 관련
-│   │   └── web/            # 웹 컨트롤러
+│   │   ├── post/           # 게시글 관련 (CRUD, 좋아요)
+│   │   ├── user/           # 사용자 관련 (회원가입/로그인)
+│   │   ├── comment/        # 댓글 관련
+│   │   ├── like/           # 좋아요 관련
+│   │   ├── search/         # 검색 관련 (예정)
+│   │   └── web/            # 웹 컨트롤러 (페이지 라우팅)
 │   └── resources/
 │       ├── templates/      # Thymeleaf 템플릿
-│       └── static/css/     # CSS 파일
+│       ├── static/css/     # CSS 파일
+│       └── application.yml # 설정 파일
 ```
 
 ## 🔧 설치 및 실행
@@ -50,22 +56,55 @@ cd legend-quotes
 ```
 
 ### 2. 데이터베이스 설정
-MySQL에서 데이터베이스 생성:
-```sql
-CREATE DATABASE legend_quotes;
+
+#### 도커를 사용한 빠른 설정 (권장)
+
+**1) 도커 설치**
+도커 데스크탑 설치: https://www.docker.com/products/docker-desktop/
+
+**2) 도커 실행 & DB 생성**
+도커 데스크탑 실행 후 터미널에 아래 명령어 입력:
+```bash
+docker run -d \
+  --name mysql-local \
+  -e MYSQL_ROOT_PASSWORD=my-secret-pw \
+  -e MYSQL_DATABASE=legend_db \
+  -p 3306:3306 \
+  mysql:8.0
 ```
 
-`application.properties` 설정:
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/legend_quotes
-spring.datasource.username=your_username
-spring.datasource.password=your_password
-spring.jpa.hibernate.ddl-auto=update
+**3) 데이터베이스 접속 정보**
+MySQL Workbench나 DataGrip 같은 DB 툴 사용:
+```
+host: localhost
+port: 3306
+username: root
+password: my-secret-pw
+database: legend_db
+```
+
+#### 직접 MySQL 설치 시
+MySQL에서 데이터베이스 생성:
+```sql
+CREATE DATABASE legend_db;
+```
+
+`application.yml` 설정:
+```yaml
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/legend_db
+    username: your_username
+    password: your_password
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
 ```
 
 ### 3. 애플리케이션 실행
 ```bash
-./mvnw spring-boot:run
+./gradlew bootRun
 ```
 
 ### 4. 브라우저에서 접속
@@ -82,16 +121,31 @@ http://localhost:8080
 | 회원가입 | `/signup` | 새 사용자 등록 |
 | 게시판 | `/posts` | 모든 게시글 조회 |
 | 글쓰기 | `/posts/create` | 새 게시글 작성 |
+| 게시글 상세 | `/posts/{id}` | 게시글 상세 조회 |
+| 게시글 수정 | `/posts/{id}/edit` | 게시글 수정 |
+| 마이페이지 | `/profile` | 사용자 프로필 |
 
 ## 🔌 API 엔드포인트
 
 ### 사용자 관리
 - `POST /api/users/signup` - 회원가입
 - `POST /api/users/signin` - 로그인
+- `GET /api/users/profile` - 프로필 조회
+- `PUT /api/users/profile` - 프로필 수정
+- `DELETE /api/users/profile` - 회원 탈퇴
 
 ### 게시글 관리
-- `GET /api/posts` - 모든 게시글 조회
+- `GET /api/posts` - 모든 게시글 조회 (정렬 지원)
 - `POST /api/posts` - 게시글 작성
+- `GET /api/posts/{id}` - 게시글 상세 조회
+- `PUT /api/posts/{id}` - 게시글 수정
+- `DELETE /api/posts/{id}` - 게시글 삭제
+- `POST /api/posts/{id}/like` - 좋아요 토글
+
+### 댓글 관리
+- `GET /api/posts/{postId}/comments` - 댓글 조회
+- `POST /api/posts/{postId}/comments` - 댓글 작성
+- `DELETE /api/posts/{postId}/comments/{commentId}` - 댓글 삭제
 
 ## 🎨 디자인 특징
 
