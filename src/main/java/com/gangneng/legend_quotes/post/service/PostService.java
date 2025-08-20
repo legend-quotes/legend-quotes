@@ -1,6 +1,7 @@
 package com.gangneng.legend_quotes.post.service;
 
 import com.gangneng.legend_quotes.post.dto.request.PostCreateRequestDTO;
+import com.gangneng.legend_quotes.post.dto.request.PostUpdateRequestDTO;
 import com.gangneng.legend_quotes.post.dto.response.PostCreateResponseDTO;
 import com.gangneng.legend_quotes.post.dto.response.PostListResponseDTO;
 import com.gangneng.legend_quotes.post.dto.response.PostDetailResponseDTO;
@@ -72,5 +73,41 @@ public class PostService {
         dto.setUpdatedAt(post.getUpdatedAt());
         
         return dto;
+    }
+
+    public PostDetailResponseDTO updatePost(Long postId, PostUpdateRequestDTO requestDTO, Long userId) {
+        Post post = postRepository.findById(postId).orElse(null);
+        
+        if (post == null || !post.getUserId().equals(userId)) {
+            return null;
+        }
+        
+        post.setTitle(requestDTO.getTitle());
+        post.setContent(requestDTO.getContent());
+        post.setProfessor(requestDTO.getProfessor());
+        
+        Post updatedPost = postRepository.save(post);
+        
+        PostDetailResponseDTO dto = new PostDetailResponseDTO();
+        dto.setId(updatedPost.getId());
+        dto.setTitle(updatedPost.getTitle());
+        dto.setContent(updatedPost.getContent());
+        dto.setUserId(updatedPost.getUserId());
+        dto.setProfessor(updatedPost.getProfessor());
+        dto.setCreatedAt(updatedPost.getCreatedAt());
+        dto.setUpdatedAt(updatedPost.getUpdatedAt());
+        
+        return dto;
+    }
+
+    public boolean deletePost(Long postId, Long userId) {
+        Post post = postRepository.findById(postId).orElse(null);
+        
+        if (post == null || !post.getUserId().equals(userId)) {
+            return false;
+        }
+        
+        postRepository.delete(post);
+        return true;
     }
 }

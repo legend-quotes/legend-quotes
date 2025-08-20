@@ -53,27 +53,49 @@
 
     <script>
         const postId = window.location.pathname.split('/').pop();
+        let currentPost = null;
 
         // 게시글 상세 정보 로드
         async function loadPostDetail() {
             try {
                 const response = await fetch(`/api/posts/${postId}`);
-                const post = await response.json();
+                currentPost = await response.json();
                 
                 document.getElementById('postDetail').innerHTML = `
                     <div class="post-header">
-                        <h2>${post.title}</h2>
+                        <h2>${currentPost.title}</h2>
                         <div class="post-meta">
-                            <span class="professor">교수: ${post.professor}</span>
-                            <span class="date">${new Date(post.createdAt).toLocaleDateString()}</span>
+                            <span class="professor">교수: ${currentPost.professor}</span>
+                            <span class="date">${new Date(currentPost.createdAt).toLocaleDateString()}</span>
                         </div>
                     </div>
                     <div class="post-content">
-                        <p>${post.content}</p>
+                        <p>${currentPost.content}</p>
+                        <div id="postActions"></div>
                     </div>
                 `;
+                
+                updatePostActions();
             } catch (error) {
                 console.error('게시글 로드 실패:', error);
+            }
+        }
+
+        // 게시글 액션 버튼 업데이트
+        function updatePostActions() {
+            if (!currentPost) return;
+            
+            const userId = getCookie('userIdJs');
+            const isOwner = userId && parseInt(userId) === currentPost.userId;
+            
+            const actionsDiv = document.getElementById('postActions');
+            if (isOwner) {
+                actionsDiv.innerHTML = `
+                    <div class="post-actions">
+                        <button onclick="editPost()" class="btn-secondary">수정</button>
+                        <button onclick="deletePost()" class="btn-secondary" style="background: #dc3545;">삭제</button>
+                    </div>
+                `;
             }
         }
 
@@ -148,6 +170,7 @@
         function logout() {
             document.cookie = 'isLoggedIn=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
             document.cookie = 'userId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            document.cookie = 'userIdJs=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
             window.location.href = '/login';
         }
 
@@ -169,15 +192,26 @@
         // 댓글 삭제
         async function deleteComment(commentId) {
             if (!confirm('정말로 댓글을 삭제하시겠습니까?')) {
+              
+        // 게시글 수정
+        function editPost() {
+            window.location.href = `/posts/${postId}/edit`;
+        }
+
+        // 게시글 삭제
+        async function deletePost() {
+            if (!confirm('정말로 삭제하시겠습니까?')) {
                 return;
             }
 
             try {
                 const response = await fetch(`/api/posts/${postId}/comments/${commentId}`, {
+                const response = await fetch(`/api/posts/${postId}`, {
                     method: 'DELETE'
                 });
 
                 if (response.ok) {
+                
                     loadComments();
                 } else if (response.status === 403) {
                     alert('삭제 권한이 없습니다.');
@@ -187,6 +221,16 @@
             } catch (error) {
                 console.error('댓글 삭제 실패:', error);
                 alert('댓글 삭제에 실패했습니다.');
+                    alert('게시글이 삭제되었습니다.');
+                    window.location.href = '/posts';
+                } else if (response.status === 403) {
+                    alert('삭제 권한이 없습니다.');
+                } else {
+                    alert('삭제에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('삭제 실패:', error);
+                alert('삭제에 실패했습니다.');
             }
         }
 
@@ -195,6 +239,8 @@
             updateNavigation();
             loadPostDetail();
             loadComments();
+            // 네비게이션 업데이트 후 게시글 액션도 업데이트
+            setTimeout(updatePostActions, 100);
         });
     </script>
 </body>

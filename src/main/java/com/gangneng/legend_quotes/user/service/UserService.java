@@ -61,6 +61,11 @@ public class UserService {
         loginStatusCookie.setPath("/");
         response.addCookie(loginStatusCookie);
         
+        Cookie userIdJsCookie = new Cookie("userIdJs", user.getId().toString());
+        userIdJsCookie.setMaxAge(5 * 60 * 60);
+        userIdJsCookie.setPath("/");
+        response.addCookie(userIdJsCookie);
+        
         responseDTO.setId(user.getId());
         responseDTO.setName(user.getName());
         responseDTO.setEmail(user.getEmail());
@@ -156,6 +161,11 @@ public class UserService {
         loginStatusCookie.setMaxAge(0);
         loginStatusCookie.setPath("/");
         response.addCookie(loginStatusCookie);
+        
+        Cookie userIdJsCookie = new Cookie("userIdJs", "");
+        userIdJsCookie.setMaxAge(0);
+        userIdJsCookie.setPath("/");
+        response.addCookie(userIdJsCookie);
         
         return ResponseEntity.ok().build();
     }

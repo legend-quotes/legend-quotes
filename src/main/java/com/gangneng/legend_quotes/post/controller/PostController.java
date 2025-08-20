@@ -1,6 +1,7 @@
 package com.gangneng.legend_quotes.post.controller;
 
 import com.gangneng.legend_quotes.post.dto.request.PostCreateRequestDTO;
+import com.gangneng.legend_quotes.post.dto.request.PostUpdateRequestDTO;
 import com.gangneng.legend_quotes.post.dto.response.PostCreateResponseDTO;
 import com.gangneng.legend_quotes.post.dto.response.PostListResponseDTO;
 import com.gangneng.legend_quotes.post.dto.response.PostDetailResponseDTO;
@@ -50,5 +51,46 @@ public class PostController {
     public ResponseEntity<PostDetailResponseDTO> getPostById(@PathVariable Long postId) {
         PostDetailResponseDTO post = postService.getPostById(postId);
         return ResponseEntity.ok(post);
+    }
+
+    // 게시글 수정
+    @PutMapping("/{postId}")
+    public ResponseEntity<PostDetailResponseDTO> updatePost(
+            @PathVariable Long postId,
+            @RequestBody PostUpdateRequestDTO requestDTO,
+            @CookieValue(value = "userId", required = false) String userIdCookie) {
+        
+        if (userIdCookie == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        
+        Long userId = Long.parseLong(userIdCookie);
+        PostDetailResponseDTO responseDTO = postService.updatePost(postId, requestDTO, userId);
+        
+        if (responseDTO == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        
+        return ResponseEntity.ok(responseDTO);
+    }
+
+    // 게시글 삭제
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Void> deletePost(
+            @PathVariable Long postId,
+            @CookieValue(value = "userId", required = false) String userIdCookie) {
+        
+        if (userIdCookie == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        
+        Long userId = Long.parseLong(userIdCookie);
+        boolean deleted = postService.deletePost(postId, userId);
+        
+        if (!deleted) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        
+        return ResponseEntity.ok().build();
     }
 }

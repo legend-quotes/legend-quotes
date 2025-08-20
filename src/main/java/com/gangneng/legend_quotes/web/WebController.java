@@ -40,4 +40,9 @@ public class WebController {
     public String profile() {
         return "profile";
     }
+
+    @GetMapping("/posts/{postId}/edit")
+    public String editPost() {
+        return "post-edit";
+    }
 }
