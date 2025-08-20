@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - 레전드 명언록</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-form">
+            <h2>로그인</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">이메일</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">비밀번호</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn-primary">로그인</button>
+            </form>
+            <p class="auth-link">
+                계정이 없으신가요? <a href="/signup">회원가입</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
+
+            try {
+                const response = await fetch('/api/users/signin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    alert('로그인 성공!');
+                    window.location.href = '/';
+                } else {
+                    alert('로그인 실패. 이메일과 비밀번호를 확인해주세요.');
+                }
+            } catch (error) {
+                alert('로그인 중 오류가 발생했습니다.');
+            }
+        });
+    </script>
+</body>
+</html>
