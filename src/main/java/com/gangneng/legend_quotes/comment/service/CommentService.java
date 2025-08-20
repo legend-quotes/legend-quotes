@@ -53,4 +53,15 @@ public class CommentService {
                 })
                 .collect(Collectors.toList());
     }
+
+    public boolean deleteComment(Long commentId, Long userId) {
+        Comment comment = commentRepository.findById(commentId).orElse(null);
+        
+        if (comment == null || !comment.getUserId().equals(userId)) {
+            return false;
+        }
+        
+        commentRepository.delete(comment);
+        return true;
+    }
 }
