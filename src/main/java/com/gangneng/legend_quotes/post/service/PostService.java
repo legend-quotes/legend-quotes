@@ -45,7 +45,7 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public List<PostListResponseDTO> getAllPosts() {
-        List<Post> posts = postRepository.findAll();
+        List<Post> posts = postRepository.findAllByOrderByCreatedAtDesc();
         
         return posts.stream()
                 .map(post -> {
@@ -56,6 +56,40 @@ public class PostService {
                     dto.setUserId(post.getUserId());
                     dto.setProfessor(post.getProfessor());
                     dto.setCreatedAt(post.getCreatedAt());
+                    dto.setLikeCount(likeRepository.countByPostId(post.getId()));
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<PostListResponseDTO> getPostsSorted(String sortBy) {
+        List<Post> posts;
+        
+        switch (sortBy) {
+            case "latest":
+                posts = postRepository.findAllByOrderByCreatedAtDesc();
+                break;
+            case "oldest":
+                posts = postRepository.findAllByOrderByCreatedAtAsc();
+                break;
+            case "likes":
+                posts = postRepository.findAllOrderByLikeCountDesc();
+                break;
+            default:
+                posts = postRepository.findAllByOrderByCreatedAtDesc();
+        }
+        
+        return posts.stream()
+                .map(post -> {
+                    PostListResponseDTO dto = new PostListResponseDTO();
+                    dto.setId(post.getId());
+                    dto.setTitle(post.getTitle());
+                    dto.setContent(post.getContent());
+                    dto.setUserId(post.getUserId());
+                    dto.setProfessor(post.getProfessor());
+                    dto.setCreatedAt(post.getCreatedAt());
+                    dto.setLikeCount(likeRepository.countByPostId(post.getId()));
                     return dto;
                 })
                 .collect(Collectors.toList());

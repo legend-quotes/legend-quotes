@@ -14,7 +14,7 @@
             </div>
             <div class="nav-links" id="navLinks">
                 <a href="/posts">게시판</a>
-                <a href="/posts/create" class="btn-primary">명언쓰기</a>
+                <a href="/posts/create" class="btn-primary">글쓰기</a>
                 <div id="authLinks">
                     <a href="/login">로그인</a>
                     <a href="/signup">회원가입</a>
@@ -69,8 +69,7 @@
                         <h3><a href="/posts/${post.id}" style="text-decoration: none; color: inherit;">${post.title}</a></h3>
                         <p>${post.content}</p>
                         <div class="post-meta">
-                            <span class="professor">👨🏫 ${post.professor}</span>
-                            <span class="likes">❤️ ${post.likeCount || 0}</span>
+                            <span class="professor">👨‍🏫 ${post.professor}</span>
                             <span class="date">${new Date(post.createdAt).toLocaleDateString()}</span>
                         </div>
                     </div>

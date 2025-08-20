@@ -41,8 +41,9 @@ public class PostController {
 
     // 모든 게시글 조회
     @GetMapping
-    public ResponseEntity<List<PostListResponseDTO>> getAllPosts() {
-        List<PostListResponseDTO> posts = postService.getAllPosts();
+    public ResponseEntity<List<PostListResponseDTO>> getAllPosts(
+            @RequestParam(value = "sort", defaultValue = "latest") String sortBy) {
+        List<PostListResponseDTO> posts = postService.getPostsSorted(sortBy);
         return ResponseEntity.ok(posts);
     }
 

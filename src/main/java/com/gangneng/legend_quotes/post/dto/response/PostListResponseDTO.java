@@ -14,4 +14,5 @@ public class PostListResponseDTO {
     private Long userId;
     private String professor;
     private LocalDateTime createdAt;
+    private Long likeCount;
 }
