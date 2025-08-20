@@ -420,3 +420,18 @@ body {
         padding: 1.5rem;
     }
 }
+
+.comment-delete-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    margin-left: 0.5rem;
+}
+
+.comment-delete-btn:hover {
+    background: #c82333;
+}

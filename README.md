@@ -11,7 +11,7 @@
 - **Backend**: Java 21, Spring Boot 3, Spring MVC, JPA (Hibernate)
 - **Frontend**: Thymeleaf, HTML5, CSS3, JavaScript
 - **Database**: MySQL
-- **Build Tool**: Maven
+- **Build Tool**: Gradle
 
 ## 🚀 주요 기능
 
