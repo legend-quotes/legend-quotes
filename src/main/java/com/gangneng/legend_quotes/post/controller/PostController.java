@@ -48,8 +48,12 @@ public class PostController {
 
     // 게시글 상세 조회
     @GetMapping("/{postId}")
-    public ResponseEntity<PostDetailResponseDTO> getPostById(@PathVariable Long postId) {
-        PostDetailResponseDTO post = postService.getPostById(postId);
+    public ResponseEntity<PostDetailResponseDTO> getPostById(
+            @PathVariable Long postId,
+            @CookieValue(value = "userId", required = false) String userIdCookie) {
+        
+        Long userId = userIdCookie != null ? Long.parseLong(userIdCookie) : null;
+        PostDetailResponseDTO post = postService.getPostByIdWithUser(postId, userId);
         return ResponseEntity.ok(post);
     }
 
@@ -90,6 +94,22 @@ public class PostController {
         if (!deleted) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+        
+        return ResponseEntity.ok().build();
+    }
+
+    // 게시글 좋아요 토글
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<Void> toggleLike(
+            @PathVariable Long postId,
+            @CookieValue(value = "userId", required = false) String userIdCookie) {
+        
+        if (userIdCookie == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        
+        Long userId = Long.parseLong(userIdCookie);
+        postService.toggleLike(postId, userId);
         
         return ResponseEntity.ok().build();
     }
